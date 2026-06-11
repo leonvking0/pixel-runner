@@ -13,6 +13,10 @@ function cleanup() {
   }
 }
 process.on('exit', cleanup);
+// 'exit' never fires on default signal death — trap signals so the python server can't leak.
+for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+  process.on(sig, () => { cleanup(); process.exit(1); });
+}
 
 function fail(msg) {
   console.error('SMOKE FAIL: ' + msg);
@@ -36,9 +40,12 @@ const watchdog = setTimeout(() => fail('hard timeout (90s)'), 90000);
     for (let i = 0; i < 20; i++) {
       if (exited) break;
       await new Promise(r => setTimeout(r, 250));
+      // re-check liveness around the fetch: a collision kills python during the sleep,
+      // and a pre-existing listener on the port must never be validated as ours
+      if (exited) break;
       try {
         const res = await fetch('http://127.0.0.1:' + p + '/index.html');
-        if (res.ok) {
+        if (res.ok && !exited) {
           html = await res.text();
           ready = true;
           break;

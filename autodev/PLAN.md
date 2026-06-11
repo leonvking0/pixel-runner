@@ -211,6 +211,13 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   the first stomp sets vy=-8 so the second resolves as side damage (1 hp). Spec-ambiguous,
   contrived geometry, unreachable in all frozen scenarios — decide semantics if a level ever
   stacks enemies.
+- (M4 review nice-to-have) input.mjs has no blur/visibilitychange reset of the held record —
+  hold a key, switch tabs, and the keyup is never delivered, so the hero runs/charges forever
+  on return. Add a blur listener zeroing all held fields. UX polish only; no acceptance or
+  landmine covers focus loss.
+- (M4 review nice-to-have) main.mjs stops stepping permanently on world.won/world.lost with no
+  restart path (manual reload only). Shell-design choice, not in the M4 contract — add a
+  restart key re-running createWorld(DEMO_LEVEL) when a game-over flow lands.
 - M5 (parked) — Second pluggable character + asset-pack loader: register a second original
   character (different stats/kit) purely through the registry, and a swappable draw-pack
   interface (entity → draw calls) selectable at world creation — proves AC-3 extensibility

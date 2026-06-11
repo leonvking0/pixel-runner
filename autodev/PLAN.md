@@ -39,7 +39,7 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
     - step=hygiene MUST fail on: any tracked media file, any package.json or node_modules, any determinism-grep hit. It MUST tolerate not-yet-existing dirs (src/characters, src/levels are absent at M0): determinism grep is `git grep -nE 'Date\.now|Math\.random|performance\.now' -- src/core src/characters src/levels` (exits clean when a pathspec dir is absent); media ban is `git ls-files | grep -E '\.(png|jpg|jpeg|gif|webp|bmp|ico|svg|wav|mp3|ogg|flac|mid|ttf|otf|woff|woff2)$'` (a match ⇒ FAIL). MUST NOT use `grep -r ... <dir>` — a missing dir exits 2 and permanently reds the gate.
     - MUST NOT add npm/package.json or any dependency. ORIGINAL ONLY: no copyrighted names, art, or likenesses anywhere (code, comments, test data).
 
-- [ ] M1 — Level + hero + headless winnable playthrough
+- [x] M1 — Level + hero + headless winnable playthrough (PR #2)
   goal: Make the demo level winnable headlessly (AC-2). `src/core/level.mjs` parses the SPEC-D4
     text format (#/. /S/G/E) into a tile grid + spawn/goal/enemy positions; `src/core/world.mjs`
     owns entities and `step(inputs)` (apply per-frame input record, integrate, collide, set
@@ -204,3 +204,8 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   hygiene→unit→smoke-fall). Review booked two backlog items (determinism-grep extension,
   in-script gate watchdog). Note: test/index.js shim added so `node --test test/` resolves the
   directory on this Node version — future test files must keep the *.test.mjs naming it globs.
+- 2026-06-11: M1 merged (PR #2) — level parser, world stepper, hero "Rivet", strong-authored
+  demo.mjs (WIN_INPUTS: 67 right-only frames, win at step 67), playthrough smoke + gate growth
+  step=smoke-playthrough with verified sed inversion proof. Review r1: 1 confirmed (out-of-budget
+  .gitignore hunk reverted), 2 nice-to-haves booked in Backlog; r2 delta clean. hybrid-dev done
+  in 0 fix rounds.

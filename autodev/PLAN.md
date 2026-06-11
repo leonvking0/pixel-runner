@@ -161,6 +161,12 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
     - The smoke must be bounded: poll the server with retries + a hard timeout, always kill the python process (trap), no network beyond localhost. NEVER use a fixed shared port without retry/fallback (port collisions).
 
 ## Backlog (review nice-to-haves + parked ideas; triaged every plan-refresh)
+- (M0 review nice-to-have) extend the gate determinism grep with setTimeout|window\.|document\.
+  for src/core+characters+levels — currently review-enforced only (SPEC AC-7 pins just the three
+  clock/random terms); watch comment/string false-positive risk.
+- (M0 review nice-to-have) in-script per-step watchdog (e.g. 600s timeout wrapper) in gate.sh so a
+  hung unit/smoke step emits the canonical `GATE FAIL step=<name>` line instead of relying on the
+  orchestrator's session-level kill (fails closed either way today).
 - M5 (parked) — Second pluggable character + asset-pack loader: register a second original
   character (different stats/kit) purely through the registry, and a swappable draw-pack
   interface (entity → draw calls) selectable at world creation — proves AC-3 extensibility

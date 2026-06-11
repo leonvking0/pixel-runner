@@ -6,7 +6,8 @@ last_failure: none           # canonical signature "GATE FAIL step=<name>", or n
 blocked_reason: none
 last_session: (none)
 last_gate: (never run)
-updated: 2026-06-10 (plan v1 committed)
+updated: 2026-06-10 (plan v2 committed — pre-launch tightening, SPEC v2 D8–D11)
 
 ## Notes (this milestone only; wiped at close-out)
 - M0 replaces the placeholder autodev/gate.sh — until then the gate fails closed by design.
+- gate.sh is ORCHESTRATOR-authored at S3g (RED, SPEC D9) — NOT in the hybrid-dev file list.

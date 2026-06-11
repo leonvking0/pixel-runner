@@ -1,4 +1,4 @@
-# SPEC — pixel-runner   (v1)
+# SPEC — pixel-runner   (v2)
 Owned by /autodev-plan. FROZEN mid-run: contradiction ⇒ BLOCKED: spec-drift; revise only via /autodev-plan replan.
 
 ## Product
@@ -41,9 +41,12 @@ assert EXACT integer values.
   wall contact or ledge edge (exact positions after K steps asserted). A projectile overlapping
   an enemy defeats it and consumes the projectile. A stomp (hero falling onto the enemy from
   above) defeats it and sets hero `vy = STOMP_BOUNCE_VY(-8)`. Side contact damages the hero
-  (hp −1, then `INVULN_FRAMES(30)` of invulnerability); hp 0 ⇒ `lost === true`. Unit-tested,
-  PLUS a combat playthrough smoke on a level where the only path to the goal is blocked by an
-  enemy — winning requires defeating it.
+  (hp −1, then `INVULN_FRAMES(30)` of invulnerability) AND applies knockback: hero
+  `vx = KNOCKBACK_VX(2)` directed away from the enemy for the full `INVULN_FRAMES` window,
+  with left/right input ignored while knocked back (unit-tested: exact vx sign/magnitude and
+  duration) — so a living enemy in a corridor cannot be walked through; hp 0 ⇒
+  `lost === true`. Unit-tested, PLUS a combat playthrough smoke on a level where the only
+  path to the goal is blocked by an enemy — winning requires defeating it.
 - **AC-5 Browser-playable with verified wiring.** `python3 -m http.server` serves `index.html`;
   the serve smoke asserts the page contains a `<canvas>`, human-readable control hints (key
   names), and a `<script type="module">` entry that itself fetches with HTTP 200; AND extracts
@@ -72,7 +75,8 @@ networking/multiplayer; save/load; real (non-placeholder) sprite art; animation 
 - D3 Gameplay constants (tests assert these exact values): `MOVE_VX=2`, `JUMP_VY=-10`,
   hero hitbox 12×14 (`NORMAL_H=14`), `SLIDE_H=8`, `SLIDE_VX=4`, `SLIDE_FRAMES=20`,
   `CHARGE_FRAMES=30`, `PROJ_VX=6`, `PROJ_DMG=1`, `CHARGED_DMG=3`, `HERO_HP=3`,
-  `ENEMY_PATROL_VX=1`, `STOMP_BOUNCE_VY=-8`, `INVULN_FRAMES=30`, `MAX_STEPS=2000`.
+  `ENEMY_PATROL_VX=1`, `STOMP_BOUNCE_VY=-8`, `INVULN_FRAMES=30`, `KNOCKBACK_VX=2`,
+  `MAX_STEPS=2000`.
 - D4 Level text format: one string per row; `#` solid, `.` empty, `S` spawn, `G` goal,
   `E` enemy spawn. Input records: per-frame `{left,right,jump,fire,slide}` booleans.
 - D5 Gate shape: `autodev/gate.sh` steps in order — `secrets` (probes/secret-leak.sh),
@@ -87,7 +91,31 @@ networking/multiplayer; save/load; real (non-placeholder) sprite art; animation 
 - D7 Stomp disambiguation: an overlap counts as a stomp iff hero `vy > 0` AND the hero's bottom
   edge was at or above the enemy's top edge on the previous step; otherwise it is side contact.
   Stomp is checked before side damage.
+- D8 Knockback (makes AC-4's blocking corridor satisfiable): on side contact the enemy sets hero
+  `vx = KNOCKBACK_VX(2)` px/step directed AWAY from the enemy for the full `INVULN_FRAMES(30)`
+  window; directional input does not override it during that window. Without this, i-framed side
+  contact would let the hero walk through a living enemy to the goal.
+- D9 gate.sh is ORCHESTRATOR-authored (RED): `autodev/gate.sh` is written and extended ONLY by
+  the orchestrator at phase=orchestrate (S3g) — never delegated to the hybrid-dev implement
+  phase (guard rule 8 blocks all gate.sh writes while `.autodev/phase == implement`, so
+  delegating it deadlocks). Applies to M0's initial authoring and every later milestone's gate
+  growth.
+- D10 Test-freeze discipline: every new `test/*.test.mjs` is oracle and FREEZES at its first
+  commit (oracle-integrity). It MUST be strong-model-authored-or-verified and `node --test test/`
+  GREEN locally BEFORE the commit that introduces it; expected values are derived by RUNNING the
+  implementation/sim, never hand-computed.
+- D11 Smoke inversion proofs: smokes are NOT frozen by oracle-integrity, so each milestone that
+  adds a smoke pins it with a mechanically runnable inversion proof — sed-mutate one pinned
+  SINGLE-LINE constant, assert the gate's last line is exactly `GATE FAIL step=<that smoke>`,
+  restore, re-run green. Pinned lines: `const EXPECTED_REST_Y = <n>;` (fall.smoke.mjs, M0);
+  `export const WIN_INPUTS = [...];` (demo.mjs, M1); `const EXPECTED_ENEMIES_DEFEATED = <n>;`
+  (combat.smoke.mjs, M3 — its own constant, because truncating WIN_INPUTS at M3 would red the
+  gate at the earlier smoke-playthrough step, not smoke-combat).
 
 ## Revision log
 - v0: template seed.
 - v1: full spec authored from the completed operator interview (2026-06-10).
+- v2: pre-launch tightening from the feasibility review (2026-06-10). AC-4 gains the side-contact
+  knockback clause (`KNOCKBACK_VX=2`, added to D3) so the M3 blocking-corridor acceptance is
+  actually satisfiable; D8–D11 appended (knockback, gate.sh orchestrator-authored RED,
+  test-freeze discipline, single-line smoke inversion constants). No AC weakened.

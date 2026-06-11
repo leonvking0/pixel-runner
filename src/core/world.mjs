@@ -60,8 +60,8 @@ export function step(world, input) {
     if (hero.vy > 0 && prevBottom <= e.y) {
       e.defeated = true;
       hero.vy = STOMP_BOUNCE_VY;
-    } else if (hero.invulnFrames === 0) {
-      hero.hp -= 1;
+    } else if (hero.invulnFrames === 0 && !world.lost) {
+      hero.hp = Math.max(0, hero.hp - 1);
       hero.invulnFrames = INVULN_FRAMES;
       hero.knockbackDir = (hero.x + hero.w / 2 < e.x + e.w / 2) ? -1 : 1;
       hero.vx = hero.knockbackDir * KNOCKBACK_VX;

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pixel Runner</title>
+<style>
+  body { background:#1a1a2e; color:#eee; margin:0; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; }
+  #game { background:#0d0d1a; image-rendering: pixelated; border:2px solid #444; display:block; }
+  #hud { font-family: monospace; color:#eee; display:flex; gap:16px; align-items:center; padding:8px 0; }
+  #hud-charge-track { width:120px; height:10px; border:1px solid #888; background:#222; }
+  #hud-charge { height:100%; width:0%; background:#4fc3f7; }
+  #status { font-family:monospace; color:#ffd54f; min-height:1.2em; }
+  #controls { font-family:monospace; color:#aaa; }
+</style>
+</head>
+<body>
+<div id="hud"><span id="hud-health">HP 3/3</span><div id="hud-charge-track"><div id="hud-charge"></div></div><span id="status"></span></div>
+<canvas id="game" width="512" height="224"></canvas>
+<p id="controls">Move: ArrowLeft / ArrowRight &nbsp;|&nbsp; Jump: KeyZ &nbsp;|&nbsp; Fire: KeyX (hold to charge) &nbsp;|&nbsp; Slide: KeyC</p>
+<script type="module" src="src/shell/main.mjs"></script>
+</body>
+</html>

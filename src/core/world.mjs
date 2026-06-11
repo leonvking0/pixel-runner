@@ -1,20 +1,24 @@
 import { TILE, applyGravity } from './physics.mjs';
 import { moveAndCollide } from './collision.mjs';
 import { parseLevel } from './level.mjs';
-import { createRobo, applyHeroInput } from '../characters/robo.mjs';
+import { createCharacter } from './registry.mjs';
+import { stepProjectile } from './projectile.mjs';
+import '../characters/robo.mjs';
 
 // step order: input -> gravity -> move/collide -> win-check-after-integration
 export function createWorld(rows) {
   const level = parseLevel(rows);
-  const hero = createRobo(level.spawn.tx * TILE, level.spawn.ty * TILE);
-  return { level, hero, won: false, frame: 0 };
+  const hero = createCharacter('robo', level.spawn.tx * TILE, level.spawn.ty * TILE);
+  return { level, hero, projectiles: [], won: false, frame: 0 };
 }
 
 export function step(world, input) {
   const inp = input || { left: false, right: false, jump: false, fire: false, slide: false };
-  applyHeroInput(world.hero, inp);
+  world.hero.applyInput(inp, world);
   applyGravity(world.hero);
   moveAndCollide(world.hero, world.level.solidAt);
+  for (const p of world.projectiles) stepProjectile(p, world.level.solidAt);
+  world.projectiles = world.projectiles.filter((p) => !p.removed);
   world.frame += 1;
   const g = world.level.goal;
   if (g && !world.won) {

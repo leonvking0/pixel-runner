@@ -149,6 +149,11 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
     strings extracted), kill server.
     Files (≤6): index.html, main.mjs, input.mjs, render.mjs, serve.smoke.mjs (+ at most ONE RED
     additive-export edit to robo.mjs or world.mjs as the 6th file).
+    Ride-along (promoted from Backlog 2026-06-11): hp floor / post-loss damage skip — RED edit
+    to world.mjs (clamp hp at 0 or skip the combat loop when lost) so the HUD never renders
+    negative hp; if a HUD additive export is also needed it MUST land on world.mjs (not robo.mjs)
+    so both share the 6th-file slot; MUST NOT red any frozen test (combat.test.mjs pins hp 0 ⇒
+    lost, not negative drift).
     Gate growth: add step=serve (orchestrator, S3g, RED — SPEC D9).
   accept:
     - bash autodev/gate.sh                                  # green incl. NEW step=serve
@@ -190,10 +195,8 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   shot but still resets fireHeld (charge consumed, no projectile). No in-repo caller does this;
   harden by skipping the whole release block (incl. counter reset) when world.projectiles is
   absent.
-- (M3 review nice-to-have) hp floor / post-loss damage skip: world.mjs side-damage branch has no
-  `world.lost` guard and `hero.hp -= 1` has no floor, so a continued overlap after the final
-  i-frame window drives hp to -1, -2 … on the public surface. Zero behavioral consequence until
-  M4 renders hp — clamp (or skip the combat loop when lost) alongside the M4 HUD work.
+- (M3 review nice-to-have) hp floor / post-loss damage skip — PROMOTED to M4 ride-along
+  2026-06-11 (HUD makes negative hp user-visible); see M4 body.
 - (M3 review nice-to-have) stomp predicate reads post-collision hero.vy: a terminal-velocity fall
   whose previous bottom equals the enemy top exactly can land on the enemy's floor the same step
   (vy zeroed) and convert a top hit into side damage. Matches the frozen contract header
@@ -256,6 +259,10 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   evaluator 0/8 confirmed (1 codex P0 false-positive — knockback-vs-wall zeroing is pinned by the
   frozen test; 7 nice-to-haves → 5 booked in Backlog, 2 PITFALLS notes). Jump+slide combo backlog
   item considered for ride-along and held (RED surface already large).
+- 2026-06-11: M4 plan-refresh — promoted the M3 backlog item "hp floor / post-loss damage skip"
+  into M4 as a RED world.mjs ride-along (HUD renders hp, so negative drift becomes user-visible);
+  constrained any HUD additive export to world.mjs so both share the 6th-file budget slot. No
+  other reorder/split; backlog otherwise held.
 - 2026-06-11: B3-F1 operator-sanctioned correction (SPEC v3, D12). M1's frozen L_E test in
   test/world.test.mjs over-asserted a hold-right win through the E column, which M3's D8
   knockback enemy made unsatisfiable (run emitted BLOCKED: spec-drift); the test was rescoped

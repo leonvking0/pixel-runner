@@ -4,3 +4,6 @@ autodev/models.local.json
 node_modules/
 dist/
 *.log
+__pycache__/
+.mypy_cache/
+.ruff_cache/

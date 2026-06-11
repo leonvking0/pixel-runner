@@ -5,6 +5,7 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
 ## Cross-milestone landmines (paste into EVERY milestone's task packet)
 - Test-freeze discipline (SPEC D10): every new test/*.test.mjs MUST be strong-model-authored-or-verified and `node --test test/` GREEN locally BEFORE the commit that introduces it; expected values are derived by RUNNING the implementation/sim, never hand-computed; tests freeze on first commit (oracle-integrity) — a wrong expected constant after the freeze is unrepairable and costs a full attempt.
 - gate.sh is ORCHESTRATOR-authored (SPEC D9): all gate growth (new steps in autodev/gate.sh) is written by the orchestrator at S3g (phase=orchestrate, RED) — NEVER delegated to the hybrid-dev implement phase (guard rule 8 blocks gate.sh writes while .autodev/phase==implement).
+- Frozen-test scope (SPEC D12, B3-F1): a frozen test asserts only its OWN milestone's contract; a tile-marker test (E enemy-spawn) asserts tile non-solidity / parser output only, never an end-to-end win that a later-milestone mechanic (M3 enemies/knockback) can invalidate.
 
 ## Milestones
 
@@ -228,3 +229,8 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   hybrid-dev done in 0 fix rounds; review r1: codex lane timed out (Lane A alone per protocol),
   0/3 findings confirmed — 3 nice-to-haves booked in Backlog (ceiling-safe slide restore,
   jump+slide combo, world-less applyHeroInput seam).
+- 2026-06-11: B3-F1 operator-sanctioned correction (SPEC v3, D12). M1's frozen L_E test in
+  test/world.test.mjs over-asserted a hold-right win through the E column, which M3's D8
+  knockback enemy made unsatisfiable (run emitted BLOCKED: spec-drift); the test was rescoped
+  to tile non-solidity + parser enemy-spawn output, and the frozen-test-scope rule was added
+  to the cross-milestone landmine block above. M0/M1/M2 milestone bodies untouched.

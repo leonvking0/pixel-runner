@@ -188,15 +188,16 @@ test('AC-2: no win without input — the same step count with all-false input le
   assert.equal(world.hero.y, 34, 'settled on the floor');
 });
 
-test('AC-2: E parses as an enemy SPAWN marker, not a solid tile — hero runs straight through the E column and wins at exactly step 35 (run-derived)', () => {
+test('AC-2: E parses as an enemy SPAWN marker, not a solid tile — the parser records the spawn at the E cell and tile-collision treats that cell as non-solid (run-derived)', () => {
+  // B3-F1 scope correction (SPEC D12): M1 owns only the tile/parser contract
+  // for 'E'. This test must hold whether or not a later milestone spawns a
+  // live enemy ENTITY at the marker (M3 does, with knockback), so it asserts
+  // at the parser/tile-collision layer and never steps a world to a win
+  // through the E column.
   const world = createWorld(L_E);
-  for (let s = 1; s <= 34; s++) {
-    step(world,RIGHT);
-    assert.equal(world.won, false, `not yet won at step ${s}`);
-  }
-  step(world,RIGHT);
-  assert.equal(world.won, true, 'a solid-E parse would block the corridor and fail this');
-  assert.equal(world.hero.x, 86, 'run-derived x at the winning step (16 + 2*35)');
+  assert.deepEqual(world.level.enemies, [{ tx: 3, ty: 2 }], 'parser records exactly one enemy spawn, at the E tile (3,2)');
+  assert.equal(world.level.solidAt(3, 2), false, 'the E cell is NON-solid for tile-collision (a solid-E parse would fail this)');
+  assert.equal(world.level.solidAt(3, 3), true, 'the floor tile directly under E is solid (contrast)');
 });
 
 test('hygiene: M1 sim sources are deterministic and DOM-free — no Date.now / Math.random / performance.now / setTimeout / DOM APIs', () => {

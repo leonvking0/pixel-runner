@@ -111,6 +111,13 @@ networking/multiplayer; save/load; real (non-placeholder) sprite art; animation 
   `export const WIN_INPUTS = [...];` (demo.mjs, M1); `const EXPECTED_ENEMIES_DEFEATED = <n>;`
   (combat.smoke.mjs, M3 — its own constant, because truncating WIN_INPUTS at M3 would red the
   gate at the earlier smoke-playthrough step, not smoke-combat).
+- D12 Frozen-test scope (B3-F1 correction): a frozen test asserts only its OWN milestone's
+  contract. A tile-marker test (e.g. the E enemy-spawn marker) asserts tile non-solidity /
+  parser output only — never an end-to-end win that a later-milestone mechanic (M3
+  enemies/knockback) can invalidate. Background: M1's L_E test in test/world.test.mjs asserted
+  a hold-right WIN through the E column; M3's D8 knockback enemy at E made that assertion
+  unsatisfiable, the run correctly emitted `BLOCKED: spec-drift`, and the operator sanctioned a
+  one-time amendment of that single frozen test to the parser/tile-collision layer.
 
 ## Revision log
 - v0: template seed.
@@ -119,3 +126,6 @@ networking/multiplayer; save/load; real (non-placeholder) sprite art; animation 
   knockback clause (`KNOCKBACK_VX=2`, added to D3) so the M3 blocking-corridor acceptance is
   actually satisfiable; D8–D11 appended (knockback, gate.sh orchestrator-authored RED,
   test-freeze discipline, single-line smoke inversion constants). No AC weakened.
+- v3: B3-F1 operator-sanctioned scope correction (2026-06-11). D12 appended (frozen tests assert
+  only their own milestone's contract); M1's L_E test rescoped to tile non-solidity + parser
+  output. No AC changed.

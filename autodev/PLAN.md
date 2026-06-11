@@ -71,7 +71,7 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
     - Jump only when onGround; hold-jump does not re-trigger mid-air. Win = AABB overlap with the G tile rectangle, checked AFTER integration in the same step.
     - The smoke MUST exit non-zero if won !== true by step 2000 (bounded loop, no while(true)).
 
-- [ ] M2 — Character registry + ranged kit (arm-cannon, charge shot, slide)
+- [x] M2 — Character registry + ranged kit (arm-cannon, charge shot, slide) (PR #3)
   goal: The pluggable system (AC-3). `src/core/registry.mjs` exposes
     registerCharacter(id, factory) / createCharacter(id); `src/core/projectile.mjs` adds the
     projectile entity (vx=facing·PROJ_VX, dmg, removed on solid-tile hit); `src/characters/robo.mjs`
@@ -176,6 +176,19 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
 - (M1 review confirmed-but-out-of-budget) ignore Python tool caches (__pycache__/, .mypy_cache/,
   .ruff_cache/) in .gitignore as a standalone harness-housekeeping commit — the hunk was reverted
   from PR #2 for diff discipline; the underlying need is real (autodev/lib/gen/__pycache__/).
+- (M2 review nice-to-have) ceiling-safe slide restore: robo.mjs restores h 8→14 unconditionally
+  when SLIDE_FRAMES elapse; with TILE=16 a grounded restore can never embed (passages are 16px
+  multiples, NORMAL_H=14 fits), but an AIRBORNE slide under a ceiling could. Delay restore until
+  the expanded rect is clear of solids — becomes load-bearing only if airborne slides or
+  sub-tile geometry ever exist.
+- (M2 review nice-to-have) jump+slide same-frame combo: both branches read the same stale
+  onGround, so a grounded press of both yields a 20-frame airborne slide (the only reachable
+  trigger for the restore latent above). Make the slide branch else-if / require !input.jump and
+  pin the combo with a test.
+- (M2 review nice-to-have) applyHeroInput without a world arg silently swallows the released
+  shot but still resets fireHeld (charge consumed, no projectile). No in-repo caller does this;
+  harden by skipping the whole release block (incl. counter reset) when world.projectiles is
+  absent.
 - M5 (parked) — Second pluggable character + asset-pack loader: register a second original
   character (different stats/kit) purely through the registry, and a swappable draw-pack
   interface (entity → draw calls) selectable at world creation — proves AC-3 extensibility
@@ -209,3 +222,9 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   step=smoke-playthrough with verified sed inversion proof. Review r1: 1 confirmed (out-of-budget
   .gitignore hunk reverted), 2 nice-to-haves booked in Backlog; r2 delta clean. hybrid-dev done
   in 0 fix rounds.
+- 2026-06-11: M2 merged (PR #3) — registry (registerCharacter/createCharacter), projectile
+  entity, robo kit (fire/charge-shot at the 29/30 boundary, 20-frame slide), world switches to
+  createCharacter('robo'). 6 files, no structural gate growth (new tests run under step=unit).
+  hybrid-dev done in 0 fix rounds; review r1: codex lane timed out (Lane A alone per protocol),
+  0/3 findings confirmed — 3 nice-to-haves booked in Backlog (ceiling-safe slide restore,
+  jump+slide combo, world-less applyHeroInput seam).

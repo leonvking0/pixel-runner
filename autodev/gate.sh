@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # autodev/gate.sh — deterministic merge gate (SPEC D5). ORCHESTRATOR-authored only (SPEC D9).
-# Steps in order: secrets → integrity → hygiene → unit → smoke-fall.
+# Steps in order: secrets → integrity → hygiene → unit → smoke-fall → smoke-playthrough.
 # Fail ⇒ last line is exactly "GATE FAIL step=<name>" + non-zero exit.
 # Pass ⇒ write `git rev-parse HEAD` to .autodev/gate-green UNLESS .autodev/phase == implement.
 # Constraints: ≤10 min, localhost-only, zero dependencies (node + git + bash only).
@@ -36,6 +36,9 @@ node --test test/ || fail unit
 
 # --- step=smoke-fall ------------------------------------------------------
 node autodev/smoke/fall.smoke.mjs || fail smoke-fall
+
+# --- step=smoke-playthrough (M1 — SPEC AC-2/D11) ---------------------------
+node autodev/smoke/playthrough.smoke.mjs || fail smoke-playthrough
 
 # --- pass (stamp BEFORE verdict: a failed stamp must never read as green) --
 if [[ "$(cat .autodev/phase 2>/dev/null)" != "implement" ]]; then

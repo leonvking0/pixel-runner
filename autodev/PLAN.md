@@ -131,7 +131,7 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
     - Test-freeze (SPEC D10): combat.test.mjs strong-verified + locally GREEN before its first commit; expected values derived by running the sim.
     - MUST NOT weaken or edit M0–M2 tests/smokes; combat smoke is NEW.
 
-- [ ] M4 — Browser shell: canvas render, keyboard input, HUD (wiring-gated)
+- [x] M4 — Browser shell: canvas render, keyboard input, HUD (wiring-gated) (PR #6)
   goal: Browser playability (AC-5). `index.html` (canvas, control-hints block, HUD elements,
     `<script type="module" src="src/shell/main.mjs">`); `src/shell/main.mjs` (fixed-timestep
     loop driving core world via requestAnimationFrame + accumulator), `src/shell/input.mjs`
@@ -270,6 +270,13 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   into M4 as a RED world.mjs ride-along (HUD renders hp, so negative drift becomes user-visible);
   constrained any HUD additive export to world.mjs so both share the 6th-file budget slot. No
   other reorder/split; backlog otherwise held.
+- 2026-06-11: M4 merged (PR #6) — browser shell: index.html (canvas 512×224, control hints,
+  HUD), main.mjs rAF+accumulator fixed-timestep loop, input.mjs key record, render.mjs canvas
+  primitives + HUD (hp/fireHeld vs HERO_HP/CHARGE_FRAMES — no new export needed), serve smoke
+  with id-linkage + key-sync wiring checks (both vacuous-pass-guarded), gate growth step=serve.
+  Ride-along landed: hp floor + post-loss damage skip in world.mjs. hybrid-dev done in 0 fix
+  rounds; review r1 both lanes, evaluator 2/4 confirmed (codex P0 port-collision false-green +
+  P1 signal-leak in the serve smoke — both patched; 2 Lane-A P2s backlogged); r2 delta clean.
 - 2026-06-11: B3-F1 operator-sanctioned correction (SPEC v3, D12). M1's frozen L_E test in
   test/world.test.mjs over-asserted a hold-right win through the E column, which M3's D8
   knockback enemy made unsatisfiable (run emitted BLOCKED: spec-drift); the test was rescoped

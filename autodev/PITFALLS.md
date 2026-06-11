@@ -1,6 +1,14 @@
 # PITFALLS — append-only. One entry per lesson; newest first. Never edit or delete entries.
 # Written on: failed attempts, gate flakes, confirmed P0s, recurring review false-positives.
 # Relevant entries are pasted VERBATIM into hybrid-dev task prompts.
+- 2026-06-11 (M4, review-confirmed P0): a smoke that spawns a server must (a) re-check child
+  liveness AFTER every sleep and require it at response-acceptance — on a port collision
+  `python3 -m http.server` dies in ms while a PRE-EXISTING listener answers the fetch, turning
+  the gate false-green (same cwd) or defeating the port fallback (foreign collider); and (b)
+  trap SIGINT/SIGTERM/SIGHUP — Node skips 'exit' handlers on default signal death, so
+  exit-only cleanup leaks the server, which then seeds the same-cwd false green on the next
+  run. Liveness-around-fetch + signal traps are the template for any future serve-style smoke
+  (e.g. M5 asset-pack render assertion).
 - 2026-06-11 (M3, review false-positive): knockback-vs-wall vx zeroing is PINNED behavior — the
   frozen test/combat.test.mjs:429 asserts vx===0 at the final window step while wall-pinned, so
   "reassert knockback vx after moveAndCollide" would RED a frozen test. Do not "fix" this in

@@ -98,7 +98,7 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
     - MUST NOT rename or remove any existing export; MUST NOT edit M0/M1 test files (frozen by oracle-integrity).
     - ORIGINAL ONLY: ability/character names must not reference any existing game character.
 
-- [ ] M3 — Enemies + combat playthrough
+- [x] M3 — Enemies + combat playthrough (PR #5)
   goal: Combat (AC-4). `src/core/enemy.mjs`: patroller spawned from E tiles, vx=±ENEMY_PATROL_VX=1,
     reverses on wall contact or when the floor tile ahead is empty. Combat resolution in
     world.mjs (RED edit): projectile∩enemy ⇒ enemy defeated + projectile consumed; stomp per
@@ -190,6 +190,24 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   shot but still resets fireHeld (charge consumed, no projectile). No in-repo caller does this;
   harden by skipping the whole release block (incl. counter reset) when world.projectiles is
   absent.
+- (M3 review nice-to-have) hp floor / post-loss damage skip: world.mjs side-damage branch has no
+  `world.lost` guard and `hero.hp -= 1` has no floor, so a continued overlap after the final
+  i-frame window drives hp to -1, -2 … on the public surface. Zero behavioral consequence until
+  M4 renders hp — clamp (or skip the combat loop when lost) alongside the M4 HUD work.
+- (M3 review nice-to-have) stomp predicate reads post-collision hero.vy: a terminal-velocity fall
+  whose previous bottom equals the enemy top exactly can land on the enemy's floor the same step
+  (vy zeroed) and convert a top hit into side damage. Matches the frozen contract header
+  ("post-move AABBs"); unreachable from tile-aligned free-fall and in demo v2 — note only.
+- (M3 review nice-to-have) knockback center-tie: hero center == enemy center resolves direction
+  to +1 (through a right-blocking enemy). Unreachable in demo v2; latent passable-corridor hazard
+  for future levels — tie-break on enemy vx or hero's previous position when authoring new levels.
+- (M3 review nice-to-have) corridor impassability is pinned only by a demo.mjs comment; no test
+  exercises a non-firing run. Hardening: a frozen test stepping DEMO_LEVEL with hold-right/no-fire
+  inputs asserting lost===true && won===false.
+- (M3 review nice-to-have) simultaneous double-stomp: overlapping two living enemies in one step,
+  the first stomp sets vy=-8 so the second resolves as side damage (1 hp). Spec-ambiguous,
+  contrived geometry, unreachable in all frozen scenarios — decide semantics if a level ever
+  stacks enemies.
 - M5 (parked) — Second pluggable character + asset-pack loader: register a second original
   character (different stats/kit) purely through the registry, and a swappable draw-pack
   interface (entity → draw calls) selectable at world creation — proves AC-3 extensibility
@@ -229,6 +247,15 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   hybrid-dev done in 0 fix rounds; review r1: codex lane timed out (Lane A alone per protocol),
   0/3 findings confirmed — 3 nice-to-haves booked in Backlog (ceiling-safe slide restore,
   jump+slide combo, world-less applyHeroInput seam).
+- 2026-06-11: M3 merged (PR #5) — enemy patroller (wall + ledge reversal), combat resolution in
+  world.mjs (projectile kill, D7 stomp with vy=-8 bounce, D8 side-contact knockback vx=±2 for the
+  full 30-frame i-window with left/right masked), demo level v2 (corridor blocked by enemy,
+  WIN_INPUTS wins at step 101 defeating 1/1), combat smoke with vacuous-pass guard + verified sed
+  inversion proof, gate growth step=smoke-combat. The out-of-budget M1 .gitignore (__pycache__/)
+  backlog item rode along (1 line). hybrid-dev done in 0 fix rounds; review r1 both lanes ran,
+  evaluator 0/8 confirmed (1 codex P0 false-positive — knockback-vs-wall zeroing is pinned by the
+  frozen test; 7 nice-to-haves → 5 booked in Backlog, 2 PITFALLS notes). Jump+slide combo backlog
+  item considered for ride-along and held (RED surface already large).
 - 2026-06-11: B3-F1 operator-sanctioned correction (SPEC v3, D12). M1's frozen L_E test in
   test/world.test.mjs over-asserted a hold-right win through the E column, which M3's D8
   knockback enemy made unsatisfiable (run emitted BLOCKED: spec-drift); the test was rescoped

@@ -167,6 +167,15 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
 - (M0 review nice-to-have) in-script per-step watchdog (e.g. 600s timeout wrapper) in gate.sh so a
   hung unit/smoke step emits the canonical `GATE FAIL step=<name>` line instead of relying on the
   orchestrator's session-level kill (fails closed either way today).
+- (M1 review nice-to-have) createWorld throws an opaque TypeError when a level string has no S
+  tile (world.mjs dereferences level.spawn unguarded) — add a diagnosable error; unreachable via
+  committed levels today.
+- (M1 review nice-to-have) level.mjs width = map[0].length assumes rectangular rows; harmless now
+  (zero width consumers; solidAt reads per-row) — fix or document when a width consumer arrives
+  (likely the M4 renderer).
+- (M1 review confirmed-but-out-of-budget) ignore Python tool caches (__pycache__/, .mypy_cache/,
+  .ruff_cache/) in .gitignore as a standalone harness-housekeeping commit — the hunk was reverted
+  from PR #2 for diff discipline; the underlying need is real (autodev/lib/gen/__pycache__/).
 - M5 (parked) — Second pluggable character + asset-pack loader: register a second original
   character (different stats/kit) purely through the registry, and a swappable draw-pack
   interface (entity → draw calls) selectable at world creation — proves AC-3 extensibility

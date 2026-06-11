@@ -8,7 +8,7 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
 
 ## Milestones
 
-- [ ] M0 — Oracle: deterministic physics core + real gate.sh
+- [x] M0 — Oracle: deterministic physics core + real gate.sh (PR #1)
   goal: Replace the placeholder gate with the real oracle and land the deterministic kernel it
     judges: `src/core/physics.mjs` (constants from SPEC D2/D3 + body integration) and
     `src/core/collision.mjs` (AABB tile collision vs a `solidAt(tx,ty)` grid; contact flags
@@ -191,3 +191,7 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   registry/projectile/slide clarifications + strong-verified test marking. R6: M3 combat-smoke
   vacuous-pass guard. R7: M4 racy manual http.server accept line deleted; control-hints
   key-sync made mechanical; HUD read-only export rule. No AC weakened.
+- 2026-06-11: M0 merged (PR #1) — physics/collision oracle + real gate.sh (secrets→integrity→
+  hygiene→unit→smoke-fall). Review booked two backlog items (determinism-grep extension,
+  in-script gate watchdog). Note: test/index.js shim added so `node --test test/` resolves the
+  directory on this Node version — future test files must keep the *.test.mjs naming it globs.

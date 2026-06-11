@@ -131,7 +131,7 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
     - Test-freeze (SPEC D10): combat.test.mjs strong-verified + locally GREEN before its first commit; expected values derived by running the sim.
     - MUST NOT weaken or edit M0–M2 tests/smokes; combat smoke is NEW.
 
-- [ ] M4 — Browser shell: canvas render, keyboard input, HUD (wiring-gated)
+- [x] M4 — Browser shell: canvas render, keyboard input, HUD (wiring-gated) (PR #6)
   goal: Browser playability (AC-5). `index.html` (canvas, control-hints block, HUD elements,
     `<script type="module" src="src/shell/main.mjs">`); `src/shell/main.mjs` (fixed-timestep
     loop driving core world via requestAnimationFrame + accumulator), `src/shell/input.mjs`
@@ -149,6 +149,11 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
     strings extracted), kill server.
     Files (≤6): index.html, main.mjs, input.mjs, render.mjs, serve.smoke.mjs (+ at most ONE RED
     additive-export edit to robo.mjs or world.mjs as the 6th file).
+    Ride-along (promoted from Backlog 2026-06-11): hp floor / post-loss damage skip — RED edit
+    to world.mjs (clamp hp at 0 or skip the combat loop when lost) so the HUD never renders
+    negative hp; if a HUD additive export is also needed it MUST land on world.mjs (not robo.mjs)
+    so both share the 6th-file slot; MUST NOT red any frozen test (combat.test.mjs pins hp 0 ⇒
+    lost, not negative drift).
     Gate growth: add step=serve (orchestrator, S3g, RED — SPEC D9).
   accept:
     - bash autodev/gate.sh                                  # green incl. NEW step=serve
@@ -190,10 +195,8 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   shot but still resets fireHeld (charge consumed, no projectile). No in-repo caller does this;
   harden by skipping the whole release block (incl. counter reset) when world.projectiles is
   absent.
-- (M3 review nice-to-have) hp floor / post-loss damage skip: world.mjs side-damage branch has no
-  `world.lost` guard and `hero.hp -= 1` has no floor, so a continued overlap after the final
-  i-frame window drives hp to -1, -2 … on the public surface. Zero behavioral consequence until
-  M4 renders hp — clamp (or skip the combat loop when lost) alongside the M4 HUD work.
+- (M3 review nice-to-have) hp floor / post-loss damage skip — PROMOTED to M4 ride-along
+  2026-06-11 (HUD makes negative hp user-visible); see M4 body.
 - (M3 review nice-to-have) stomp predicate reads post-collision hero.vy: a terminal-velocity fall
   whose previous bottom equals the enemy top exactly can land on the enemy's floor the same step
   (vy zeroed) and convert a top hit into side damage. Matches the frozen contract header
@@ -208,6 +211,13 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   the first stomp sets vy=-8 so the second resolves as side damage (1 hp). Spec-ambiguous,
   contrived geometry, unreachable in all frozen scenarios — decide semantics if a level ever
   stacks enemies.
+- (M4 review nice-to-have) input.mjs has no blur/visibilitychange reset of the held record —
+  hold a key, switch tabs, and the keyup is never delivered, so the hero runs/charges forever
+  on return. Add a blur listener zeroing all held fields. UX polish only; no acceptance or
+  landmine covers focus loss.
+- (M4 review nice-to-have) main.mjs stops stepping permanently on world.won/world.lost with no
+  restart path (manual reload only). Shell-design choice, not in the M4 contract — add a
+  restart key re-running createWorld(DEMO_LEVEL) when a game-over flow lands.
 - M5 (parked) — Second pluggable character + asset-pack loader: register a second original
   character (different stats/kit) purely through the registry, and a swappable draw-pack
   interface (entity → draw calls) selectable at world creation — proves AC-3 extensibility
@@ -256,6 +266,17 @@ Format: `- [ ] M<n> — <title>` + indented `goal:` / `accept:` (runnable comman
   evaluator 0/8 confirmed (1 codex P0 false-positive — knockback-vs-wall zeroing is pinned by the
   frozen test; 7 nice-to-haves → 5 booked in Backlog, 2 PITFALLS notes). Jump+slide combo backlog
   item considered for ride-along and held (RED surface already large).
+- 2026-06-11: M4 plan-refresh — promoted the M3 backlog item "hp floor / post-loss damage skip"
+  into M4 as a RED world.mjs ride-along (HUD renders hp, so negative drift becomes user-visible);
+  constrained any HUD additive export to world.mjs so both share the 6th-file budget slot. No
+  other reorder/split; backlog otherwise held.
+- 2026-06-11: M4 merged (PR #6) — browser shell: index.html (canvas 512×224, control hints,
+  HUD), main.mjs rAF+accumulator fixed-timestep loop, input.mjs key record, render.mjs canvas
+  primitives + HUD (hp/fireHeld vs HERO_HP/CHARGE_FRAMES — no new export needed), serve smoke
+  with id-linkage + key-sync wiring checks (both vacuous-pass-guarded), gate growth step=serve.
+  Ride-along landed: hp floor + post-loss damage skip in world.mjs. hybrid-dev done in 0 fix
+  rounds; review r1 both lanes, evaluator 2/4 confirmed (codex P0 port-collision false-green +
+  P1 signal-leak in the serve smoke — both patched; 2 Lane-A P2s backlogged); r2 delta clean.
 - 2026-06-11: B3-F1 operator-sanctioned correction (SPEC v3, D12). M1's frozen L_E test in
   test/world.test.mjs over-asserted a hold-right win through the E column, which M3's D8
   knockback enemy made unsatisfiable (run emitted BLOCKED: spec-drift); the test was rescoped

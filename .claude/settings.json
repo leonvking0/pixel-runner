@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git rebase:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git update-ref -d:*)",
+      "Bash(gh repo delete:*)",
+      "Bash(gh repo edit:*)",
+      "Bash(gh api --method DELETE:*)",
+      "Bash(gh api -X DELETE:*)",
+      "Bash(gh ruleset:*)",
+      "Bash(rm HALT*)",
+      "Bash(rm -f HALT*)",
+      "Bash(rm ./HALT*)",
+      "Bash(rm -rf .autodev*)",
+      "Bash(rm -r .autodev*)",
+      "Bash(codex exec -s workspace-write:*)",
+      "Bash(codex exec -s danger-full-access:*)",
+      "Read(.env*)",
+      "Read(**/.env*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.config/gh/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.sh\"" }]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.sh\"" }]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [{ "type": "command", "command": "[ -f \"$CLAUDE_PROJECT_DIR/autodev/STATE.md\" ] && cat \"$CLAUDE_PROJECT_DIR/autodev/STATE.md\" || true" }]
+      }
+    ]
+  }
+}

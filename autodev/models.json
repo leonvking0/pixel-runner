@@ -1,0 +1,39 @@
+{
+  "_comment": "autodev-lite model roles. Tracked, non-secret — api_key_env holds only env-var NAMES. roles.weak keeps the predecessor schema so resolve_model.py/hybrid_gen.py/hybrid-dev.js run byte-identical; lib/gen MUST stay the sibling of this file (hybrid-dev.js derives one from the other). models.local.json (gitignored) deep-merges on top for the WEAK role only.",
+  "roles": {
+    "strong": {
+      "model": "claude-fable-5",
+      "_comment": "passed to `claude -p --model`; alias or full id; per-run override: autodev run --strong sonnet. B3: operator set strong=Fable for ALL strong-model work — planning, orchestration/PM, Lane-A review, finding-evaluator/audit, and hybrid-dev's strong side (it reads roles.strong)."
+    },
+    "weak": {
+      "provider": "openai-compatible",
+      "base_url": "http://localhost:11435/v1",
+      "model": "qwen3.6-27b",
+      "api_key_env": null,
+      "sampling": {
+        "enable_thinking": true,
+        "max_tokens": 81920,
+        "temperature": 0.6,
+        "top_p": 0.95,
+        "top_k": 20,
+        "presence_penalty": 0,
+        "min_p": 0
+      },
+      "timeout_sec": 1800,
+      "concurrency": 5,
+      "health_check": {
+        "path": "/models",
+        "expect_model": "qwen3.6-27b",
+        "timeout_sec": 4
+      }
+    },
+    "codex": {
+      "bin": "codex",
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh",
+      "service_tier": "fast",
+      "timeout_sec": 570,
+      "_comment": "operator-pinned (D34); --ignore-user-config skips ~/.codex/config.toml so all three are passed as -c flags; a null value omits its flag. timeout_sec MUST stay <600 (D46): the review runs codex in a FOREGROUND Bash call whose tool-level cap is 600000ms, so 570 lets codex self-skip cleanly instead of being killed by the tool."
+    }
+  }
+}
